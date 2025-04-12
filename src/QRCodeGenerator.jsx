@@ -15,12 +15,13 @@ export const QRCodeGenerator = ({ user, setUser }) => {
         Authorization: "Bearer " + user.token,
       },
     })
-      .then((response) =>{
+      .then((response) => {
         if (!response.ok) {
           throw new Error("Failed to generate QR code");
-      }
-      return  response.json(),then((data) => setImageUrl(data.imageUrl))
-     })
+        }
+        return response.json();
+      })
+      .then((data) => setImageUrl(data.imageUrl))
       .catch((error) => {
         console.error("Failed to get QR!", error);
       })
@@ -30,16 +31,11 @@ export const QRCodeGenerator = ({ user, setUser }) => {
   };
 
   return (
-    <div>
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          gap: "50px",
-        }}
-      >
+    <div className="qrcode-generator-container">
+      <div className="header">
         <h3>Welcome {user.name}</h3>
         <button
+          className="logout-button"
           onClick={() => {
             setUser(null);
           }}
@@ -47,31 +43,37 @@ export const QRCodeGenerator = ({ user, setUser }) => {
           Logout
         </button>
       </div>
-      <div>
+      <div className="input-container">
         <textarea
+          className="text-input"
           type="text"
           value={text}
           placeholder="Enter Text"
           onChange={(e) => setText(e.target.value)}
           maxLength={2096}
-          style={{ resize: "none" }}
         />
-        <button onClick={onSubmit}>Submit</button>
+        <button
+          className="submit-button"
+          onClick={onSubmit}
+          disabled={loading || !text.trim()}
+        >
+          {loading ? "Generating..." : "Submit"}
+        </button>
       </div>
-      <div>
+      <div className="output-container">
         {loading ? (
-          <div>Loading...</div>
+          <div className="loading">Loading...</div>
         ) : !imageUrl ? (
-          <div>Enter Text & Click Submit</div>
+          <div className="placeholder">Enter Text & Click Submit</div>
         ) : (
-          <div>
-            <img src={imageUrl} />
-
+          <div className="qr-code-container">
+            <img src={imageUrl} alt="Generated QR Code" />
             <button
+              className="download-button"
               onClick={() => {
                 const a = document.createElement("a");
                 a.href = imageUrl;
-                a.download = "";
+                a.download = "qrcode.png";
                 a.click();
               }}
             >
